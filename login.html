@@ -1,0 +1,50 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styl.css">
+</head>
+<body>
+
+    <div id="spoko">
+        <form id="loginForm">
+            <input id="nazwa" type="text" name="nazwa" minlength="4" maxlength="16" placeholder="Nazwa użytkownika..."> <br>
+            <input id="haslo" type="password" name="haslo" minlength="4" maxlength="16" placeholder="Hasło..."> <br>
+            <input id="submitbtn" type="submit" value="Zaloguj!">
+        </form>
+    
+        <p>nie masz konta?</p>
+        <button id="button" onclick="location.href='rejestracja.html'">
+            Zarejestruj się
+        </button>
+
+        <p id="pisztu"></p>
+    </div>
+    
+  
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    document.getElementById("pisztu").innerHTML = response.cokolwiek;
+                    if (response.wszystkojedno) {
+                        setTimeout(function() {
+                            window.location.href = "index.php";
+                        }, 1500);
+                    }
+                }
+            };
+            var login = document.getElementById('nazwa').value;
+            var haslo = document.getElementById('haslo').value;
+            xhr.open('POST', 'login.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send('nazwa=' + encodeURIComponent(login) + '&haslo=' + encodeURIComponent(haslo));
+        });
+
+
+        
+    </script>
+</body>
+</html>

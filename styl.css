@@ -1,0 +1,12 @@
+#main{
+    margin-top: 300px;
+
+
+}
+
+body{
+    width: 99%;
+    height: 98%;
+    overflow: hidden;
+    background: linear-gradient(#3c97ec ,#4d11f1);
+}

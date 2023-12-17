@@ -1,0 +1,50 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styl.css">
+</head>
+
+<body>
+    <div id="spoko">
+        <form id="loginForm" autocomplete="off">
+            <input id="nazwa" type="text" name="nazwa" minlength="4" maxlength="16" pattern="[a-zA-Z0-9]+" placeholder="Nazwa użytkownika" id="im" title="Dozwolone są litery (wielkie i małe) oraz cyfry." required> <br>
+            <input id="haslo" type="password" name="haslo" minlength="4" maxlength="16" pattern="[a-zA-Z0-9!*,]+" placeholder="Hasło" id="has" title="Dozwolone są litery (wielkie i małe) oraz cyfry i zanki specjalne '!' '*'" required> <br>
+            <input id="submitbtn" type="submit" value="Zarejestruj!">
+        </form>
+
+    
+    
+        <p>Masz juz konto?</p>
+        <button id="button" onclick="location.href='login.html'">
+            Zaloguj
+        </button>
+    </div>
+    <p id="pisztu"></p>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+                document.getElementById("pisztu").innerHTML = response.cokolwiek;
+                if (response.wszystkojedno) {
+                    setTimeout(function() {
+                        window.location.href = "login.html";
+                    }, 1500);
+                }
+            }
+        };
+        var login = document.getElementById('nazwa').value;
+        var haslo = document.getElementById('haslo').value;
+        xhr.open('POST', 'rejestracja.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send('nazwa=' + encodeURIComponent(login) + '&haslo=' + encodeURIComponent(haslo));
+    });
+</script>
+    
+</body>
+
+</html>
