@@ -1,0 +1,194 @@
+<?php
+
+$nazwa = $_POST['nazwa'];
+$data = $_POST['czas'];
+$now = strtotime($data);
+
+$conn = new mysqli("127.0.0.1", "root", "", "tictactoedb");
+
+$q = "SELECT * FROM uzytkownicy WHERE nazwa='$nazwa'";
+$wynik = $conn->query($q);
+
+while($row=$wynik->fetch_array()){
+    $MMR = $row[3];
+}
+
+$FilePath = 'lobbyStatus.txt';
+$status = "waiting";
+$lobbyMMRmin = $MMR - 50;
+$lobbyMMRmax = $MMR + 50;
+$nazwa2 = "xbp";
+
+$pisz = "$status - $lobbyMMRmin - $lobbyMMRmax - $nazwa - $nazwa2- $data";
+$lobbyExists = false;
+
+$lines = file($FilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$redirect = false;
+
+
+// Usuwanie linii starszych niż 5 sekund
+$lines = array_filter($lines, function ($line) use ($now) {
+    $lineData = explode(' - ', $line);
+    $currentLobbyTime = strtotime(trim($lineData[5]));
+    return count($lineData) === 6 && $now - $currentLobbyTime <= 5;
+});
+
+//                   TRZY
+
+// foreach ($lines as $key => $line) {
+// $lineData = explode('-', $line);
+// $currentLobbystatus = trim($lineData[0]);
+// $currentLobbyMinMMR = trim($lineData[1]);
+// $currentLobbyMaxMMR = trim($lineData[2]);
+// $currentLobbyPlayer = trim($lineData[3]);
+// $currentLobbyPlayer2 = trim($lineData[3]);
+
+//     //jest ty jestes załozycielem lobby
+//     if($currentLobbyPlayer == $nazwa){
+//         $lobbyExists = true;
+
+//         if($currentLobbystatus == "starting"){
+//             $redirect = true;
+//             $status = "starting";
+//             $pisz = "$status - $lobbyMMRmin - $lobbyMMRmax - $nazwa - $currentLobbyPlayer2 - $data";
+
+//         }elseif($currentLobbyPlayer2 == "xbp"){
+//             $redirect = false;
+//         }else{
+//             $redirect = true;
+//             $status = "starting";
+//             $pisz = "$status - $lobbyMMRmin - $lobbyMMRmax - $nazwa - $currentLobbyPlayer2 - $data";
+//         }
+
+//         $lines[$key] = $pisz;
+//     // jeśli nie jesteśzałozycielem lobby
+//     }else{
+//         //jeśli twój ranking jest w zakresie
+//         if($MMR >= $currentLobbyMinMMR && $MMR <= $currentLobbyMaxMMR){
+//             //jeśli ty jesteś  2 graczem
+//             if($currentLobbyPlayer2 == $nazwa){
+//                 $redirect = true;
+//                 $lobbyExists = true;
+//                 $status = "starting";
+//                 $pisz = "$status - $lobbyMMRmin - $lobbyMMRmax - $currentLobbyPlayer - $nazwa - $data";
+//             }elseif($currentLobbyPlayer2 == "xbp"){
+//                 $redirect = true;
+//                 $lobbyExists = true;
+//                 $status = "starting";
+//                 $pisz = "$status - $lobbyMMRmin - $lobbyMMRmax - $currentLobbyPlayer - $nazwa - $data";
+//             }else{
+//                 $redirect = false;
+//                 $status = "waiting";
+//             }
+//         }else{
+//             $redirect = false;
+//             $lobbyExists = false;    
+//         }
+
+//         $lines[$key] = $pisz;
+//     }
+// }
+
+
+
+
+//                 DWA
+// foreach ($lines as $key => $line) {
+//     $lineData = explode('-', $line);
+//     $currentLobbystatus = trim($lineData[0]);
+//     $currentLobbyMinMMR = trim($lineData[1]);
+//     $currentLobbyMaxMMR = trim($lineData[2]);
+//     $currentLobbyPlayer = trim($lineData[3]);
+//     $currentLobbyPlayer2 = trim($lineData[4]);
+    
+    
+    
+
+//     if($currentLobbyPlayer == $nazwa) {
+//         $lobbyExists = true;
+//         if($currentLobbyPlayer2 == "xbp"){
+//             $redirect = false;
+//         }else{
+//             $redirect = true;
+            
+//             $status == "starting";
+//             $lineData[0] = $status;
+//             $lines[$key] = implode('-', $lineData);
+//         }
+
+//         $lines[$key] = $pisz;
+//     }elseif($currentLobbyPlayer2 == $nazwa){
+//         $lobbyExists = true;
+//         $redirect = true;    
+    
+//     }elseif($currentLobbyPlayer2 == "xbp"){
+//         if ($MMR >= $currentLobbyMinMMR && $MMR <= $currentLobbyMaxMMR) {
+//                     $lineData[4] = $nazwa;
+//                     $lines[$key] = implode('-', $lineData);
+//                     $redirect = true;
+//                     $lobbyExists = true;
+//         }else{
+//             $redirect = false;
+//             $lobbyExists = false;
+//         }
+//     }
+
+// }
+
+
+
+//         JEDEN
+    if($currentLobbystatus == "waiting"){
+        if ($currentLobbyPlayer == $nazwa) {
+            $lobbyExists = true;
+            $lines[$key] = $pisz;
+            $redirect = false;
+        } elseif ($MMR >= $currentLobbyMinMMR && $MMR <= $currentLobbyMaxMMR) {
+            $status = "starting";
+            $lobbyExists = true;
+            $lineData[0] = $status;
+            $lines[$key] = implode('-', $lineData);
+            $redirect = true;
+        }
+    } else {
+        $redirect = true;
+    }
+
+
+
+foreach ($lines as $key => $line) {
+    $lineData = explode('-', $line);
+    $currentLobbystatus = trim($lineData[0]);
+    $currentLobbyMinMMR = trim($lineData[1]);
+    $currentLobbyMaxMMR = trim($lineData[2]);
+    $currentLobbyPlayer = trim($lineData[3]);
+    
+    if($currentLobbystatus == "waiting"){
+        if ($currentLobbyPlayer == $nazwa) {
+            $lobbyExists = true;
+            $lines[$key] = $pisz;
+            $redirect = false;
+        } elseif ($MMR >= $currentLobbyMinMMR && $MMR <= $currentLobbyMaxMMR) {
+            $lobbyfound = true;
+            $status = "starting";
+            $lobbyExists = true;
+            $lineData[0] = $status;
+            $lines[$key] = implode('-', $lineData);
+            $redirect = true;
+        }
+    } else {
+        $redirect = true;
+    }
+}
+
+if (!$lobbyExists) {
+    $lines[] = $pisz;
+}
+
+file_put_contents($FilePath, implode("\n", $lines) . "\n");
+
+header('Content-Type: application/json');
+echo json_encode(['redirect' => $redirect]);
+
+
+?>
